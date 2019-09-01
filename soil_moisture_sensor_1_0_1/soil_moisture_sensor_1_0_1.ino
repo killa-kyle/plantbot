@@ -1,4 +1,7 @@
+// https://wiki.dfrobot.com/Capacitive_Soil_Moisture_Sensor_SKU_SEN0193
+
 // include the library code:
+
 #include <LiquidCrystal.h>
 #include <dht.h>
 
@@ -21,7 +24,7 @@ int lastButtonState = 0;     // previous state of the button
 int menuPage = 0;
 
 // sensor 
-const int AirValue = 611;   //you need to replace this value with Value_1
+const int AirValue = 600;   //you need to replace this value with Value_1
 const int WaterValue = 320;  //you need to replace this value with Value_2
 int intervals = (AirValue - WaterValue)/3;
 int soilMoistureValue = 0;
@@ -52,6 +55,7 @@ void setup() {
 void loop() {
   handleButton();
 //  loopLights();
+  
    
 }
 
@@ -87,8 +91,7 @@ void handlePages() {
       handleLogger();
       switch (menuPage)
     {
-        case 1:
-          soilMoistureCheck();
+        cas );
 
           break;
         case 2:
@@ -129,13 +132,15 @@ void soilLastChecked() {
   lcd.print(val); // TODO: get reading and display value
   lcd.setCursor(0,1);
   lcd.print("Last: 09/01/19");
-  delay(500);
+  delay(100);
   }
 
 void soilMoistureCheck(){
   lcd.clear();
   lcd.setCursor(0,0); 
-  lcd.print("Water Status:");
+  lcd.print("Soil: ");
+  lcd.print(calculateWetness());
+  lcd.print("% wet");
   
   soilMoistureValue = analogRead(A0);  //put Sensor insert into soil
  
@@ -147,7 +152,7 @@ void soilMoistureCheck(){
     lcd.print("Very Wet: ");
     lcd.print(soilMoistureValue);
     digitalWrite(RED_LED, HIGH);    
-    delay(1000);    
+
     
   }
   else if(soilMoistureValue > (WaterValue + intervals) && soilMoistureValue < (AirValue - intervals))
@@ -209,3 +214,22 @@ void lightsOff(){
   digitalWrite(GREEN_LED, LOW);     // turn off LED3
 
 }
+
+int calculateWetness(){
+  // ((input - min) * 100) / (max - min)
+  int val;
+  val = analogRead(0); //connect sensor to Analog 0
+  int Range = AirValue - WaterValue;
+  int CorrectedStartValue = val - WaterValue;
+  int dryPercentage = ( CorrectedStartValue * 100) / Range;
+  int wetPercentage = 100 - dryPercentage;
+  
+  // logging
+  Serial.print("Soil is ");
+  Serial.print(wetPercentage); //print the value to serial port
+  Serial.print("%  wet");
+  Serial.println("           ");
+  return wetPercentage;
+  
+
+  }
