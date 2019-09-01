@@ -79,6 +79,7 @@ void handleButton(){
 }
 
 void handlePages() {
+      handleLogger();
       switch (menuPage)
     {
         case 1:
@@ -91,7 +92,7 @@ void handlePages() {
           tempHumidityCheck();
           break;
     }
-    handleLogger();
+   
 }
 
 void tempHumidityCheck() {
